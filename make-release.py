@@ -46,11 +46,25 @@ def collect_files(source_files):
 
     for f in find_source_files(source_patterns):
         target_file = f.encode('utf8').replace(project_home, release_dir)
-#        print target_file
         if os.path.isdir(f.encode('gbk')):
             os.makedirs(target_file.decode('utf8').encode('gbk'))
         else:
             shutil.copy(f.encode('gbk'), target_file.decode('utf8').encode('gbk'))
+
+
+def pack_files(zip_file, root_dir):
+
+    zip_handle = zipfile.ZipFile(zip_file.decode('utf8').encode('gbk'), 'w', zipfile.ZIP_DEFLATED)
+
+    for root, sub_dirs, files in os.walk(root_dir):
+        for a_dir in sub_dirs:
+            print 'Adding %s ...' % os.path.join(root, a_dir).decode('gbk')
+            zip_handle.write(os.path.join(root, a_dir))
+        for a_file in files:
+            print 'Adding %s ...' % os.path.join(root, a_file).decode('gbk')
+            zip_handle.write(os.path.join(root, a_file))
+
+    zip_handle.close()
 
 
 if __name__ == "__main__":
@@ -61,14 +75,5 @@ if __name__ == "__main__":
 
     os.chdir(os.path.join(project_home, 'target').decode('utf8').encode('gbk'))
 
-    zip_handle = zipfile.ZipFile(dist_file_name.decode('utf8').encode('gbk'), 'w', zipfile.ZIP_DEFLATED)
+    pack_files(dist_file_name, release_tag)
 
-    for root, sub_dirs, files in os.walk(release_tag):
-        for a_dir in sub_dirs:
-            print 'Adding %s ...' % os.path.join(root, a_dir).decode('gbk')
-            zip_handle.write(os.path.join(root, a_dir))
-        for a_file in files:
-            print 'Adding %s ...' % os.path.join(root, a_file).decode('gbk')
-            zip_handle.write(os.path.join(root, a_file))
-
-    zip_handle.close()
